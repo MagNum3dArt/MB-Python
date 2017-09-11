@@ -18,7 +18,7 @@ editStyles = ["Find", "Replace", "Prefix", "Suffix"]
 edits = {}
 
 # Find Asterix in find and replace fields 
-def FindAsterix(find, replace):
+def AsterixInFind(find, replace):
     
     asterix = "*"
     
@@ -26,6 +26,14 @@ def FindAsterix(find, replace):
         return True
         
     return False
+
+# Determine New Name of Take
+def NewName(find, replace, prefix, suffix, old_name, asterix_in_find):
+    
+    if asterix_in_find:
+        return prefix + replace.replace("*",old_name) + suffix 
+    else:
+        return prefix + old_name.replace(find, replace) + suffix 
 
 # Find Errors    
 def FindWarning(find, replace, prefix, suffix, asterix_in_find):
@@ -38,13 +46,8 @@ def FindWarning(find, replace, prefix, suffix, asterix_in_find):
                 
             selected += 1
             old_name = take.Name
-            # If there is Asterix - use whole take name
-            new_name =( 
-                replace.replace("*",take.Name) if asterix_in_find else 
-                old_name.replace(find, replace)
-                )
-            # Add prefix and suffix
-            new_name = prefix + new_name+ suffix
+            new_name = NewName(find, replace, prefix, suffix,
+                                old_name, asterix_in_find)
             if old_name != new_name:
                 changed += 1
 
@@ -76,20 +79,15 @@ def BtnRenameCallback(control,event):
     e = edits['Suffix']
     suffix = e.Text
     
-    asterix_in_find = FindAsterix(find, replace)
+    asterix_in_find = AsterixInFind(find, replace)
 
     if FindWarning(find, replace, prefix, suffix, asterix_in_find):
         return
 
     for take in lSys.Scene.Takes:
         if take.Selected:
-            # If there is Asterix - use whole take name
-            take.Name =(
-                replace.replace("*",take.Name) if asterix_in_find else 
-                take.Name.replace(find, replace)
-                )
-            # Add prefix and suffix
-            take.Name = prefix + take.Name + suffix
+            take.Name = NewName(find, replace, prefix, suffix,
+                                take.Name, asterix_in_find)
 
     FBMessageBox( "Changes:",  "Takes are renamed", "OK" )
         
