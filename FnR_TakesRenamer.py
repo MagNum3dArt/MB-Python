@@ -3,7 +3,6 @@
 ## FnR_TakeRenamer.py
 ## Author Alexander <MagNum3D> Malin 2017
 ## 3.d@ukr.net
-## www.nasna.ga
 ##
 ####################################################################
 from pyfbsdk import *
@@ -163,3 +162,4 @@ def CreateTool():
     
 if __name__ in ('__name__', '__builtin__'):
     CreateTool()
+    #
