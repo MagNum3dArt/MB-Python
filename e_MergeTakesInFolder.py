@@ -6,21 +6,26 @@ from pyfbsdk_additions import *
 # Creating all the Constructors
 lFp = FBFolderPopup()
 lDFp = FBFolderPopup()
-##lMgr = FBFbxManager()
 lSystem = FBSystem()
 lApp = FBApplication ()
 lScene = lSystem.Scene
 
+
 fbxList = []
 subStr = "Move"
-editStyles = ["Find","Replace"]
 edits = {}
 
+def getUniqNumber():
+    lTime = FBSystem().SystemTime
+    uniq_number = str(lTime.GetSecondDouble()).split(".")
+    uniq_number = uniq_number[1]
+    return uniq_number
+    
 
 def makeUniq(name):
     for take in lSystem.Scene.Takes:
         if take.Name == name:
-            name = take.Name + "_1"
+            name = take.Name + "_copy_" + getUniqNumber() + getUniqNumber()
             makeUniq(name)
     
     return name
@@ -48,7 +53,29 @@ def BtnFolderCallback(control,event):
 
 
 def BtnMergeCallback(control,event):
-    return
+    
+    folder_path = edits['Folder'].Text
+    subStr = edits['Find'].Text
+    
+    fileList = os.listdir(folder_path)
+    print "fileList", fileList
+    # Setting the regular expression to only look for .fbx extenstion
+    fbxRE = re.compile('^\w+.fbx$', re.I)
+
+    # Removing any files that do not have an .fbx extenstion
+    for fname in fileList:
+        mo = fbxRE.search(fname)
+        if mo:
+            fbxList.append(fname)
+    # Exporting items in the file one at a time
+    print "fbxList", fbxList
+    for fname in fbxList:
+        
+        print "fileList", fname
+
+        lFilePath = folder_path + "\\" + fname
+        
+        merge(lFilePath, subStr)
     
 # app.FileAppend(lFp.FullFilename, True, None)
 def merge(lFilePath,subStr):
@@ -133,10 +160,10 @@ def PopulateLayout(mainLyt):
     # Create label
     labId = "LabelFind"
     l = FBLabel()
-    l.Caption = "Find:"
+    l.Caption = "Find takes with: "
     x = FBAddRegionParam(10,FBAttachType.kFBAttachLeft,"")
     y = FBAddRegionParam(10,attachType,anchor)
-    w = FBAddRegionParam(50,FBAttachType.kFBAttachNone,"")
+    w = FBAddRegionParam(75,FBAttachType.kFBAttachNone,"")
     h = FBAddRegionParam(25,FBAttachType.kFBAttachNone,"")
     
     mainLyt.AddRegion(labId,labId, x, y, w, h)
@@ -151,7 +178,7 @@ def PopulateLayout(mainLyt):
     
     x = FBAddRegionParam(10,FBAttachType.kFBAttachRight,labId)
     y = FBAddRegionParam(10,attachType,anchor)
-    w = FBAddRegionParam(200,FBAttachType.kFBAttachNone,"")
+    w = FBAddRegionParam(190,FBAttachType.kFBAttachNone,"")
     h = FBAddRegionParam(25,FBAttachType.kFBAttachNone,"")
 
     mainLyt.AddRegion(editId,editId, x, y, w, h)
@@ -183,9 +210,9 @@ def PopulateLayout(mainLyt):
     y = FBAddRegionParam(10,attachType,anchor)
     w = FBAddRegionParam(0,FBAttachType.kFBAttachRight,"")
     h = FBAddRegionParam(25,FBAttachType.kFBAttachNone,"")
-    mainLyt.AddRegion("main1","main1", x, y, w, h)
+    mainLyt.AddRegion("Folder","Folder", x, y, w, h)
     lyt = FBHBoxLayout()
-    mainLyt.SetControl("main1",lyt)
+    mainLyt.SetControl("Folder",lyt)
 
     b = FBButton()
     b.Caption = "Folder"
@@ -199,22 +226,36 @@ def PopulateLayout(mainLyt):
     
     # Find 
     e = edits['Find']
-##    e.Text = "Find sub string"
+    e.Text = "Take"
     #e.PasswordMode = True
     #e.OnChange.Add(SetFind)
     
-##    e = edits['Replace']
-##    e.Text = "Replace with sub string"
+    e = edits['Folder']
+    e.Text = "D:\_Work\HomeWork\MotionBuilder\ScriptsTesting\MergeTakes"
     #e.PasswordMode = True
     #e.OnChange.Add(SetReplace)
     
-    x = FBAddRegionParam(100,FBAttachType.kFBAttachLeft,"")
-    y = FBAddRegionParam(100,FBAttachType.kFBAttachTop,"")
+    x = FBAddRegionParam(0,FBAttachType.kFBAttachLeft,"")
+    y = FBAddRegionParam(80,FBAttachType.kFBAttachTop,"")
     w = FBAddRegionParam(0,FBAttachType.kFBAttachRight,"")
     h = FBAddRegionParam(25,FBAttachType.kFBAttachNone,"")
-    mainLyt.AddRegion("main","main", x, y, w, h)
+    mainLyt.AddRegion("Checkbox","Checkbox", x, y, w, h)
     lyt = FBHBoxLayout()
-    mainLyt.SetControl("main",lyt)
+    mainLyt.SetControl("Checkbox",lyt)
+    
+    b = FBButton()
+    b.Caption = "Overwrite existed takes"
+    b.Style = FBButtonStyle.kFBCheckbox 
+    b.Justify = FBTextJustify.kFBTextJustifyLeft
+    lyt.Add(b,200)
+    
+    x = FBAddRegionParam(220,FBAttachType.kFBAttachLeft,"")
+    y = FBAddRegionParam(110,FBAttachType.kFBAttachTop,"")
+    w = FBAddRegionParam(0,FBAttachType.kFBAttachRight,"")
+    h = FBAddRegionParam(25,FBAttachType.kFBAttachNone,"")
+    mainLyt.AddRegion("Merge","Merge", x, y, w, h)
+    lyt = FBHBoxLayout()
+    mainLyt.SetControl("Merge",lyt)
     
     b = FBButton()
     b.Caption = "Merge"
@@ -230,7 +271,7 @@ def PopulateLayout(mainLyt):
 
 def CreateTool():
     # Tool creation will serve as the hub for all other controls
-    t = FBCreateUniqueTool("Find and Replace Take Names")
+    t = FBCreateUniqueTool("Merge Files")
     t.StartSizeX = 300
     t.StartSizeY = 200
 
