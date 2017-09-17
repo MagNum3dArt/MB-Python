@@ -86,7 +86,8 @@ def merge(lFilePath,subStr):
 # Disable merging of all import file takes
     for lTakeIndex in range( lOptions.GetTakeCount() ):
         if subStr in lOptions.GetTakeName( lTakeIndex):
-            lOptions.SetTakeDestinationName( lTakeIndex, makeUniq(lOptions.GetTakeName( lTakeIndex)))
+            if edits["Overwrite"].State==False:
+                lOptions.SetTakeDestinationName( lTakeIndex, makeUniq(lOptions.GetTakeName( lTakeIndex)))
             lOptions.SetTakeSelect( lTakeIndex, True )
         else:
             lOptions.SetTakeSelect( lTakeIndex, False )
@@ -248,6 +249,7 @@ def PopulateLayout(mainLyt):
     b.Style = FBButtonStyle.kFBCheckbox 
     b.Justify = FBTextJustify.kFBTextJustifyLeft
     lyt.Add(b,200)
+    edits['Overwrite'] = b
     
     x = FBAddRegionParam(220,FBAttachType.kFBAttachLeft,"")
     y = FBAddRegionParam(110,FBAttachType.kFBAttachTop,"")
