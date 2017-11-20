@@ -31,51 +31,27 @@ def makeUniq(name):
     return name
 
 
-def BtnFolderCallback(control,event):
-    # Select directory you would like to load your FBX files in from 
-    # Create the popup and set necessary initial values.
-    lFp.Caption = "Source Files: Select the folder containing the files you would like to export"
-    
-    # Set the default path. Good for a PC only... will have to be different for Mac.
-    lFp.Path = r"D:\_Work\HomeWork\MotionBuilder\ScriptsTesting\MergeTakes"
-    
-    # Get the GUI to show.
+def BtnFileCallback(control,event):
+    lFp = FBFilePopup()
+    lFp.Caption = "Prop Menu Merge: Select a file"
+    lFp.Style = FBFilePopupStyle.kFBFilePopupOpen
+    lFp.Filter = "*"
+    lFp.Path = "D:/_Work/HomeWork/MotionBuilder/ScriptsTesting/MergeTakes"
     lRes = lFp.Execute()
-    
-    # If you select a folder, show its name, otherwise indicate that the selection was canceled.
     if not lRes:
         FBMessageBox( "Warning:", "Selection canceled, cannot continue!", "OK" )
     
     else:
-        edits['Folder'].Text = lFp.Path
-##        FBMessageBox( "Selected Folder Path:", "Selected folder:\n  Path: '%s'" % lFp.Path, "OK" )
+        lFilePath =lFp.FullFilename
+        edits['File'].Text = lFilePath
+    
 
 
 
 def BtnMergeCallback(control,event):
-    
-    folder_path = edits['Folder'].Text
+    lFilePath = edits['File'].Text
     subStr = edits['Find'].Text
-    
-    fileList = os.listdir(folder_path)
-    print "fileList", fileList
-    # Setting the regular expression to only look for .fbx extenstion
-    fbxRE = re.compile('^\w+.fbx$', re.I)
-
-    # Removing any files that do not have an .fbx extenstion
-    for fname in fileList:
-        mo = fbxRE.search(fname)
-        if mo:
-            fbxList.append(fname)
-    # Exporting items in the file one at a time
-    print "fbxList", fbxList
-    for fname in fbxList:
-        
-        print "fileList", fname
-
-        lFilePath = folder_path + "\\" + fname
-        
-        merge(lFilePath, subStr)
+    merge(lFilePath, subStr)
     
 # app.FileAppend(lFp.FullFilename, True, None)
 def merge(lFilePath,subStr):
@@ -190,9 +166,9 @@ def PopulateLayout(mainLyt):
     anchor = labId
 
     # Create edit
-    editId = "EditFolder"
+    editId = "EditFile"
     e = FBEdit()
-    edits['Folder'] = e
+    edits['File'] = e
     
     x = FBAddRegionParam(10,FBAttachType.kFBAttachLeft,"")
     y = FBAddRegionParam(10,attachType,anchor)
@@ -211,15 +187,15 @@ def PopulateLayout(mainLyt):
     y = FBAddRegionParam(10,attachType,anchor)
     w = FBAddRegionParam(0,FBAttachType.kFBAttachRight,"")
     h = FBAddRegionParam(25,FBAttachType.kFBAttachNone,"")
-    mainLyt.AddRegion("Folder","Folder", x, y, w, h)
+    mainLyt.AddRegion("File","File", x, y, w, h)
     lyt = FBHBoxLayout()
-    mainLyt.SetControl("Folder",lyt)
+    mainLyt.SetControl("File",lyt)
 
     b = FBButton()
-    b.Caption = "Folder"
+    b.Caption = "File"
     b.Justify = FBTextJustify.kFBTextJustifyCenter
     lyt.Add(b,60)
-    b.OnClick.Add(BtnFolderCallback)
+    b.OnClick.Add(BtnFileCallback)
 
 
     
@@ -231,7 +207,7 @@ def PopulateLayout(mainLyt):
     #e.PasswordMode = True
     #e.OnChange.Add(SetFind)
     
-    e = edits['Folder']
+    e = edits['File']
     e.Text = "D:\_Work\HomeWork\MotionBuilder\ScriptsTesting\MergeTakes"
     #e.PasswordMode = True
     #e.OnChange.Add(SetReplace)

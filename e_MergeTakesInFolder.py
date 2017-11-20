@@ -227,7 +227,7 @@ def PopulateLayout(mainLyt):
     
     # Find 
     e = edits['Find']
-    e.Text = "Take"
+    e.Text = ""
     #e.PasswordMode = True
     #e.OnChange.Add(SetFind)
     
