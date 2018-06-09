@@ -94,6 +94,7 @@ def merge(lFilePath,subStr):
 # Enable merging of only the first import file take
     #lOptions.SetTakeSelect( 0, True )
 # Merge it like it's hot
+    #lApp.FileImport( lFilePath , True, False)
     lApp.FileMerge( lFilePath , False, lOptions )
 
 def getFile():

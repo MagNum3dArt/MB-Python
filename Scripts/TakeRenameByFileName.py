@@ -73,9 +73,12 @@ else:
     
             shortName = fname.split(".")
             shortName = shortName[0]
-            newTake = FBSystem().Scene.Takes[0]
             
+            newTake = FBSystem().Scene.Takes[0]            
+            newTake.Name = "T_Pose"
+            newTake = FBSystem().Scene.Takes[1]            
             newTake.Name = shortName
+            
             lApp.FileSave(lDFp.Path + "\\" + fname)
             #lMgr.SaveCharacterRigAndAnimation(lFp.Path + "\\Animation_" + fname, lScene.Characters[0], False, True, False)
     
